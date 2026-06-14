@@ -1,0 +1,228 @@
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    background: #252525;
+    border-radius: 20px;
+    padding: 16px;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: bold;
+    color: white;
+}
+
+.stat-label {
+    color: #aaa;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.test-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.test-btn {
+    flex: 1;
+    text-align: center;
+    padding: 1.2rem;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: 700;
+    transition: all 0.3s;
+    font-size: 1.1rem;
+}
+
+.test-btn:hover {
+    transform: translateY(-5px);
+}
+
+.profile-btn {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.fitness-btn {
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    color: white;
+}
+
+.nutrition-btn {
+    background: linear-gradient(135deg, #ff9800, #f44336);
+    color: white;
+}
+
+.results-card {
+    background: #2d2d2d;
+    border-radius: 24px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #3d3d3d;
+}
+
+.info-highlight {
+    background: #252525;
+    border-radius: 16px;
+    padding: 16px;
+    margin-top: 16px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #3d3d3d;
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    color: #aaa;
+}
+
+.info-value {
+    color: white;
+    font-weight: bold;
+}
+
+.chart-container {
+    background: #252525;
+    border-radius: 16px;
+    padding: 16px;
+    margin-top: 16px;
+    min-height: 550px;
+    position: relative;
+}
+
+canvas {
+    max-height: 550px;
+    width: 100%;
+}
+
+.no-data {
+    text-align: center;
+    color: #aaa;
+    padding: 40px;
+}
+
+.chart-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.chart-toggle-btn {
+    padding: 8px 16px;
+    background: #252525;
+    border: 1px solid #3d3d3d;
+    border-radius: 20px;
+    color: #aaa;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 12px;
+}
+
+.chart-toggle-btn:hover {
+    background: #3d3d3d;
+}
+
+.chart-toggle-btn.active {
+    background: #4a6fa5;
+    color: white;
+    border-color: #4a6fa5;
+}
+
+.legend-note {
+    font-size: 12px;
+    color: #aaa;
+    text-align: center;
+    margin-top: 10px;
+    padding: 8px;
+    background: #252525;
+    border-radius: 8px;
+}
+
+.level-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.level-high {
+    background: #5cb85c;
+    color: white;
+}
+
+.level-medium {
+    background: #f0ad4e;
+    color: #1e1e1e;
+}
+
+.level-low {
+    background: #d9534f;
+    color: white;
+}
+
+.calories-remaining {
+    margin-top: 8px;
+    font-size: 12px;
+}
+
+.calories-remaining.good {
+    color: #5cb85c;
+}
+
+.calories-remaining.warning {
+    color: #f0ad4e;
+}
+
+.calories-remaining.bad {
+    color: #d9534f;
+}
+
+.logout-btn {
+    background: #d9534f;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 40px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.logout-btn:hover {
+    background: #c9302c;
+    transform: translateY(-2px);
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+

@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Дневник питания - Персональный тренер</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .nutrition-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .date-selector {
+            background: #2d2d2d;
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .date-selector label {
+            color: white;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        .date-selector input {
+            padding: 12px;
+            background: #252525;
+            border: 1px solid #3d3d3d;
+            border-radius: 16px;
+            color: white;
+            font-size: 16px;
+        }
+
+        .quick-card {
+            background: #2d2d2d;
+            border-radius: 24px;
+            padding: 24px;
+            border: 1px solid #3d3d3d;
+        }
+
+        .meal-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .meal-option {
+            background: #252525;
+            border: 2px solid #3d3d3d;
+            border-radius: 60px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #aaa;
+            font-weight: 500;
+        }
+        .meal-option.selected {
+            background: #4a6fa5;
+            border-color: #4a6fa5;
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #aaa;
+            font-size: 14px;
+        }
+        .form-input {
+            width: 100%;
+            padding: 14px;
+            background: #252525;
+            border: 1px solid #3d3d3d;
+            border-radius: 16px;
+            color: white;
+            font-size: 16px;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #4a6fa5;
+        }
+
+        .nutrients-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .nutrient-input {
+            text-align: center;
+        }
+        .nutrient-input label {
+            font-size: 12px;
+            margin-bottom: 4px;
+            display: block;
+            color: #aaa;
+        }
+        .nutrient-input input {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .quick-save-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 40px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .stats-card {
+            background: linear-gradient(135deg, #1e1e1e, #252525);
+            border-radius: 24px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .daily-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        .stat-item {
+            background: #1e1e1e;
+            border-radius: 16px;
+            padding: 12px;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff9800;
+        }
+        .stat-label {
+            color: #aaa;
+            font-size: 11px;
+            margin-top: 4px;
+        }
+        .foods-list {
+            margin-top: 16px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .food-item {
+            background: #1e1e1e;
+            border-radius: 12px;
+            padding: 10px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .food-info {
+            flex: 1;
+        }
+        .food-name {
+            font-weight: bold;
+            color: white;
+        }
+        .food-details {
+            font-size: 12px;
+            color: #aaa;
+        }
+        .delete-btn {
+            background: #d9534f;
+            border: none;
+            border-radius: 20px;
+            padding: 5px 12px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .btn-secondary {
+            display: inline-block;
+            width: 100%;
+            padding: 14px;
+            background: #3d3d3d;
+            border: none;
+            border-radius: 40px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 12px;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .success-msg {
+            background: #2e7d64;
+            border-radius: 16px;
+            padding: 12px;
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="nutrition-container">
+        <div class="success-msg" id="successMsg">✅ Данные сохранены!</div>
+
+        <!-- Выбор даты -->
+        <div class="date-selector">
+            <label>📅 Выберите дату:</label>
+            <input type="date" id="selectedDate">
+        </div>
+
+        <div class="quick-card">
+            <h3 style="color: white; margin-bottom: 20px;">⚡ Быстрый ввод продукта</h3>
+            <div class="meal-selector">
+                <div class="meal-option" data-meal="breakfast">🍳 Завтрак</div>
+                <div class="meal-option" data-meal="lunch">🍱 Обед</div>
+                <div class="meal-option" data-meal="snack">🍎 Полдник</div>
+                <div class="meal-option" data-meal="dinner">🍽️ Ужин</div>
+                <div class="meal-option" data-meal="extra">🍪 Перекус</div>
+            </div>
+
+            <div class="form-group">
+                <label>🍽️ Название продукта/блюда</label>
+                <input type="text" id="quickFoodName" class="form-input" placeholder="например: Гречка с курицей">
+            </div>
+
+            <div class="form-group">
+                <label>⚖️ Вес порции (грамм)</label>
+                <input type="number" id="quickFoodGrams" class="form-input" placeholder="250">
+            </div>
+
+            <div class="nutrients-grid">
+                <div class="nutrient-input">
+                    <label>🔥 Калории</label>
+                    <input type="number" id="quickCalories" class="form-input" placeholder="ккал">
+                </div>
+                <div class="nutrient-input">
+                    <label>🥩 Белки (г)</label>
+                    <input type="number" id="quickProtein" class="form-input" placeholder="г">
+                </div>
+                <div class="nutrient-input">
+                    <label>🍖 Жиры (г)</label>
+                    <input type="number" id="quickFat" class="form-input" placeholder="г">
+                </div>
+                <div class="nutrient-input">
+                    <label>🍚 Углеводы (г)</label>
+                    <input type="number" id="quickCarbs" class="form-input" placeholder="г">
+                </div>
+            </div>
+
+            <button class="quick-save-btn" onclick="saveQuickMeal()">💾 Сохранить приём</button>
+        </div>
+
+        <!-- Список добавленных продуктов за выбранную дату -->
+        <div class="stats-card">
+            <h3 style="color: white; margin-bottom: 16px;">📋 Продукты за выбранный день</h3>
+            <div id="foodsList" class="foods-list"></div>
+        </div>
+
+        <a href="/dashboard" class="btn-secondary">← Вернуться в дашборд</a>
+    </div>
+
+    <script>
+        let token = localStorage.getItem('token');
+        if (!token) window.location.href = '/login';
+
+        let selectedMeal = 'breakfast';
+
+        // Устанавливаем сегодняшнюю дату по умолчанию
+        document.getElementById('selectedDate').value = new Date().toISOString().split('T')[0];
+
+        // Выбор приема пищи
+        document.querySelectorAll('.meal-option').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.meal-option').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                selectedMeal = btn.dataset.meal;
+            });
+        });
+        document.querySelector('.meal-option').classList.add('selected');
+
+        // При изменении даты - перезагружаем данные
+        document.getElementById('selectedDate').addEventListener('change', () => {
+            loadFoodsByDate();
+        });
+
+        async function saveQuickMeal() {
+            const date = document.getElementById('selectedDate').value;
+            const foodName = document.getElementById('quickFoodName').value;
+            const grams = parseInt(document.getElementById('quickFoodGrams').value);
+            const calories = parseInt(document.getElementById('quickCalories').value) || 0;
+            const protein = parseFloat(document.getElementById('quickProtein').value) || 0;
+            const fat = parseFloat(document.getElementById('quickFat').value) || 0;
+            const carbs = parseFloat(document.getElementById('quickCarbs').value) || 0;
+
+            if (!foodName || !grams) {
+                showMessage('Заполните название и вес!', false);
+                return;
+            }
+
+            const mealData = {
+                date: date,
+                meal_type: selectedMeal,
+                foods: [{
+                    name: foodName,
+                    grams: grams,
+                    calories: calories,
+                    protein: protein,
+                    fat: fat,
+                    carbs: carbs
+                }]
+            };
+
+            try {
+                const res = await fetch('/api/nutrition/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(mealData)
+                });
+
+                if (res.ok) {
+                    showMessage(`✅ ${getMealName(selectedMeal)} сохранён за ${date}!`, true);
+                    document.getElementById('quickFoodName').value = '';
+                    document.getElementById('quickFoodGrams').value = '';
+                    document.getElementById('quickCalories').value = '';
+                    document.getElementById('quickProtein').value = '';
+                    document.getElementById('quickFat').value = '';
+                    document.getElementById('quickCarbs').value = '';
+                    loadFoodsByDate();
+                } else {
+                    showMessage('Ошибка сохранения', false);
+                }
+            } catch (err) {
+                showMessage('Ошибка соединения', false);
+            }
+        }
+
+        async function loadFoodsByDate() {
+            const date = document.getElementById('selectedDate').value;
+
+            try {
+                const res = await fetch(`/api/nutrition/by_date?date=${date}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    displayFoods(data);
+                    calculateTotalStats(data);
+                }
+            } catch (err) {
+                console.error('Ошибка загрузки:', err);
+            }
+        }
+
+        function displayFoods(data) {
+            const container = document.getElementById('foodsList');
+            const mealNames = {
+                breakfast: '🍳 Завтрак',
+                lunch: '🍱 Обед',
+                snack: '🍎 Полдник',
+                dinner: '🍽️ Ужин',
+                extra: '🍪 Перекус'
+            };
+
+            let html = '';
+            let hasData = false;
+
+            for (const [meal, foods] of Object.entries(data)) {
+                if (foods && foods.length > 0) {
+                    hasData = true;
+                    html += `<div style="margin-bottom: 16px;">
+                        <div style="color: #ff9800; font-weight: bold; margin-bottom: 8px;">${mealNames[meal]}</div>`;
+
+                    for (const food of foods) {
+                        html += `
+                            <div class="food-item" data-meal="${meal}" data-food-idx="${food.id}">
+                                <div class="food-info">
+                                    <div class="food-name">${escapeHtml(food.name)}</div>
+                                    <div class="food-details">
+                                        ${food.grams} г | 🔥 ${food.calories} ккал |
+                                        🥩 ${food.protein} г | 🍖 ${food.fat} г | 🍚 ${food.carbs} г
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    html += `</div>`;
+                }
+            }
+
+            if (!hasData) {
+                html = '<div style="text-align: center; color: #aaa; padding: 40px;">Нет записей за выбранный день</div>';
+            }
+
+            container.innerHTML = html;
+        }
+
+        function calculateTotalStats(data) {
+            let totalCal = 0, totalProt = 0, totalFat = 0, totalCarbs = 0;
+
+            for (const [meal, foods] of Object.entries(data)) {
+                if (foods && foods.length > 0) {
+                    for (const food of foods) {
+                        totalCal += food.calories || 0;
+                        totalProt += food.protein || 0;
+                        totalFat += food.fat || 0;
+                        totalCarbs += food.carbs || 0;
+                    }
+                }
+            }
+
+            // Обновляем статистику в существующем блоке или создаём новый
+            let statsDiv = document.querySelector('.daily-stats');
+            if (!statsDiv) {
+                const statsCard = document.querySelector('.stats-card');
+                statsDiv = document.createElement('div');
+                statsDiv.className = 'daily-stats';
+                statsCard.insertBefore(statsDiv, statsCard.firstChild);
+            }
+
+            statsDiv.innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-value">${totalCal}</div>
+                    <div class="stat-label">Калории</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${totalProt.toFixed(1)}</div>
+                    <div class="stat-label">Белки (г)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${totalFat.toFixed(1)}</div>
+                    <div class="stat-label">Жиры (г)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${totalCarbs.toFixed(1)}</div>
+                    <div class="stat-label">Углеводы (г)</div>
+                </div>
+            `;
+        }
+
+        function getMealName(meal) {
+            const names = {
+                breakfast: 'Завтрак',
+                lunch: 'Обед',
+                snack: 'Полдник',
+                dinner: 'Ужин',
+                extra: 'Перекус'
+            };
+            return names[meal] || meal;
+        }
+
+        function showMessage(msg, isSuccess) {
+            const msgDiv = document.getElementById('successMsg');
+            msgDiv.textContent = msg;
+            msgDiv.style.background = isSuccess ? '#2e7d64' : '#d9534f';
+            msgDiv.style.display = 'block';
+            setTimeout(() => {
+                msgDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Инициализация
+        loadFoodsByDate();
+    </script>
+</body>
+</html>

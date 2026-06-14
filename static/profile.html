@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Мои параметры - Персональный тренер</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .profile-container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .step-card { background: #2d2d2d; border-radius: 24px; padding: 24px; margin-bottom: 20px; border: 1px solid #3d3d3d; }
+        .step-title { font-size: 20px; font-weight: bold; color: white; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .step-number { background: #4a6fa5; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; margin-bottom: 8px; color: #aaa; font-size: 14px; }
+        .form-group input, .form-group select { width: 100%; padding: 14px; background: #252525; border: 1px solid #3d3d3d; border-radius: 16px; color: white; font-size: 16px; }
+        .form-group input:focus { outline: none; border-color: #4a6fa5; }
+        .question-row { margin-bottom: 16px; padding: 12px; background: #252525; border-radius: 16px; }
+        .question-text { color: white; margin-bottom: 12px; font-size: 15px; }
+        .options-row { display: flex; gap: 12px; flex-wrap: wrap; }
+        .option-btn { flex: 1; padding: 10px; background: #1e1e1e; border: 1px solid #3d3d3d; border-radius: 40px; color: #aaa; cursor: pointer; text-align: center; transition: all 0.3s; }
+        .option-btn.selected { background: #4a6fa5; color: white; border-color: #4a6fa5; }
+        .save-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #667eea, #764ba2); border: none; border-radius: 40px; color: white; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        .btn-secondary { width: 100%; padding: 14px; background: #3d3d3d; border: none; border-radius: 40px; color: white; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 12px; text-align: center; display: inline-block; text-decoration: none; }
+        .warning { background: #8b3a3a; border-radius: 16px; padding: 12px; margin-bottom: 20px; text-align: center; color: white; font-size: 14px; }
+        .button-group { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
+        .info-text { color: #4a6fa5; font-size: 12px; margin-top: 5px; }
+        .calories-info { background: #1e1e1e; border-radius: 16px; padding: 16px; margin-top: 16px; text-align: center; }
+        .calories-value { font-size: 28px; font-weight: bold; color: #ff9800; }
+        .calories-label { color: #aaa; font-size: 12px; }
+        .date-note { font-size: 11px; color: #aaa; margin-top: 5px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="profile-container">
+        <div class="warning" id="warningMsg" style="display: none;">⚠️ Заполните все обязательные поля</div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-number">1</span><span>📏 Антропометрические данные</span></div>
+            <div class="form-group">
+                <label>📅 Дата замера</label>
+                <input type="date" id="measurementDate" class="form-input">
+                <div class="date-note">Выберите дату, к которой относится этот вес</div>
+            </div>
+            <div class="form-group">
+                <label>Рост (см) *</label>
+                <input type="number" id="height" placeholder="Например: 175">
+            </div>
+            <div class="form-group">
+                <label>Текущий вес (кг) *</label>
+                <input type="number" id="weight" placeholder="Например: 70">
+            </div>
+            <div class="form-group">
+                <label>🎯 Желаемый вес (кг)</label>
+                <input type="number" id="targetWeight" placeholder="Оставьте пустым, если не знаете">
+            </div>
+            <div class="form-group">
+                <label>Возраст (лет) *</label>
+                <input type="number" id="age" placeholder="Например: 25">
+            </div>
+            <div class="form-group">
+                <label>Пол *</label>
+                <select id="gender">
+                    <option value="male">👨 Мужской</option>
+                    <option value="female">👩 Женский</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-number">2</span><span>🏃 Уровень физической активности</span></div>
+            <div class="question-row">
+                <div class="question-text">Как часто вы занимаетесь спортом?</div>
+                <div class="options-row">
+                    <div class="option-btn" data-activity="none">Никогда</div>
+                    <div class="option-btn" data-activity="1-2">1-2 раза в неделю</div>
+                    <div class="option-btn" data-activity="3-4">3-4 раза в неделю</div>
+                    <div class="option-btn" data-activity="5+">5+ раз в неделю</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="step-card">
+            <div class="step-title"><span class="step-number">3</span><span>🎯 Ваша цель</span></div>
+            <div class="question-row">
+                <div class="question-text">Какую цель вы хотите достичь?</div>
+                <div class="options-row">
+                    <div class="option-btn" data-goal="lose">🔥 Похудеть</div>
+                    <div class="option-btn" data-goal="gain">💪 Набрать массу</div>
+                    <div class="option-btn" data-goal="maintain">⚖️ Поддерживать форму</div>
+                </div>
+            </div>
+            <div class="calories-info" id="caloriesInfo" style="display: none;">
+                <div class="calories-label">🔥 Ваша рекомендуемая норма калорий в день</div>
+                <div class="calories-value" id="dailyCalories">—</div>
+                <div class="info-text">* Расчёт по формуле Миффлина-Сан Жеора</div>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button class="save-btn" id="saveBtn">💾 Сохранить параметры</button>
+            <a href="/dashboard" class="btn-secondary">← Вернуться в дашборд</a>
+        </div>
+    </div>
+
+    <script>
+        let token = localStorage.getItem('token');
+        if (!token) window.location.href = '/login';
+
+        let selectedActivity = 'none', selectedGoal = 'maintain';
+
+        // Устанавливаем сегодняшнюю дату по умолчанию
+        document.getElementById('measurementDate').value = new Date().toISOString().split('T')[0];
+
+        // Функция расчёта калорий на клиенте для предпросмотра
+        function calculateAndShowCalories() {
+            const height = parseFloat(document.getElementById('height').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+            const age = parseInt(document.getElementById('age').value);
+            const gender = document.getElementById('gender').value;
+
+            if (!height || !weight || !age) {
+                document.getElementById('caloriesInfo').style.display = 'none';
+                return;
+            }
+
+            let bmr;
+            if (gender === 'male') {
+                bmr = 88.36 + (13.4 * weight) + (4.8 * height) - (5.7 * age);
+            } else {
+                bmr = 447.6 + (9.2 * weight) + (3.1 * height) - (4.3 * age);
+            }
+
+            const multipliers = { 'none': 1.2, '1-2': 1.375, '3-4': 1.55, '5+': 1.725 };
+            const tdee = bmr * (multipliers[selectedActivity] || 1.2);
+
+            let calories;
+            if (selectedGoal === 'lose') calories = Math.round(tdee - 500);
+            else if (selectedGoal === 'gain') calories = Math.round(tdee + 300);
+            else calories = Math.round(tdee);
+
+            if (calories > 0) {
+                document.getElementById('dailyCalories').textContent = calories;
+                document.getElementById('caloriesInfo').style.display = 'block';
+            }
+        }
+
+        document.querySelectorAll('[data-activity]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('[data-activity]').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                selectedActivity = btn.dataset.activity;
+                calculateAndShowCalories();
+            });
+        });
+
+        document.querySelectorAll('[data-goal]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('[data-goal]').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                selectedGoal = btn.dataset.goal;
+                calculateAndShowCalories();
+            });
+        });
+
+        // Добавляем слушатели на поля для авто-расчёта
+        ['height', 'weight', 'age', 'gender'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('input', calculateAndShowCalories);
+            if (el && el.tagName === 'SELECT') el.addEventListener('change', calculateAndShowCalories);
+        });
+
+        async function loadProfile() {
+            try {
+                const res = await fetch('/api/profile/get', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const profile = await res.json();
+                    if (profile) {
+                        document.getElementById('height').value = profile.height;
+                        document.getElementById('weight').value = profile.weight;
+                        document.getElementById('targetWeight').value = profile.target_weight || '';
+                        document.getElementById('age').value = profile.age;
+                        document.getElementById('gender').value = profile.gender;
+
+                        if (profile.activity) {
+                            selectedActivity = profile.activity;
+                            document.querySelectorAll('[data-activity]').forEach(btn => {
+                                if (btn.dataset.activity === profile.activity) btn.classList.add('selected');
+                                else btn.classList.remove('selected');
+                            });
+                        }
+                        if (profile.goal) {
+                            selectedGoal = profile.goal;
+                            document.querySelectorAll('[data-goal]').forEach(btn => {
+                                if (btn.dataset.goal === profile.goal) btn.classList.add('selected');
+                                else btn.classList.remove('selected');
+                            });
+                        }
+                        calculateAndShowCalories();
+                    }
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        document.getElementById('saveBtn').addEventListener('click', async () => {
+            const measurementDate = document.getElementById('measurementDate').value;
+            const height = parseFloat(document.getElementById('height').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+            const targetWeight = parseFloat(document.getElementById('targetWeight').value) || null;
+            const age = parseInt(document.getElementById('age').value);
+            const gender = document.getElementById('gender').value;
+
+            if (!height || !weight || !age) {
+                const warning = document.getElementById('warningMsg');
+                warning.style.background = '#8b3a3a';
+                warning.textContent = '⚠️ Заполните все обязательные поля!';
+                warning.style.display = 'block';
+                setTimeout(() => warning.style.display = 'none', 3000);
+                return;
+            }
+
+            const heightM = height / 100;
+            const bmi = parseFloat((weight / (heightM * heightM)).toFixed(1));
+            let bmiCategory = '';
+            if (bmi < 18.5) bmiCategory = 'Недостаточный вес';
+            else if (bmi < 25) bmiCategory = 'Нормальный вес';
+            else if (bmi < 30) bmiCategory = 'Избыточный вес';
+            else bmiCategory = 'Ожирение';
+
+            let goalText = '';
+            if (selectedGoal === 'lose') goalText = 'Похудеть';
+            else if (selectedGoal === 'gain') goalText = 'Набрать массу';
+            else goalText = 'Поддерживать форму';
+
+            // Рассчитываем калории для отправки на сервер
+            let bmr;
+            if (gender === 'male') {
+                bmr = 88.36 + (13.4 * weight) + (4.8 * height) - (5.7 * age);
+            } else {
+                bmr = 447.6 + (9.2 * weight) + (3.1 * height) - (4.3 * age);
+            }
+            const multipliers = { 'none': 1.2, '1-2': 1.375, '3-4': 1.55, '5+': 1.725 };
+            const tdee = bmr * (multipliers[selectedActivity] || 1.2);
+            let dailyCalories;
+            if (selectedGoal === 'lose') dailyCalories = Math.round(tdee - 500);
+            else if (selectedGoal === 'gain') dailyCalories = Math.round(tdee + 300);
+            else dailyCalories = Math.round(tdee);
+
+            const profileData = {
+                height, weight, target_weight: targetWeight, age, gender,
+                bmi, bmiCategory, activity: selectedActivity,
+                fitnessSelf: 'average', fitnessLevel: 'Начинающий',
+                goal: selectedGoal, goalText, daily_calories: dailyCalories,
+                measurement_date: measurementDate
+            };
+
+            const res = await fetch('/api/profile/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify(profileData)
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                const warning = document.getElementById('warningMsg');
+                warning.style.background = '#2e7d64';
+                warning.textContent = `✅ Данные сохранены! Вес за ${measurementDate}: ${weight} кг. Норма калорий: ${data.daily_calories || dailyCalories} ккал/день`;
+                warning.style.display = 'block';
+                setTimeout(() => window.location.href = '/dashboard', 1500);
+            } else {
+                const error = await res.json();
+                alert('Ошибка сохранения: ' + (error.detail || 'Неизвестная ошибка'));
+            }
+        });
+
+        loadProfile();
+    </script>
+</body>
+</html>

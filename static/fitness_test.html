@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Фитнес-тестирование - Персональный тренер</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .test-container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .date-selector {
+            background: #2d2d2d;
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .date-selector input {
+            padding: 12px;
+            background: #252525;
+            border: 1px solid #3d3d3d;
+            border-radius: 16px;
+            color: white;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+        .test-card { background: #2d2d2d; border-radius: 24px; padding: 30px; margin-bottom: 20px; border: 1px solid #3d3d3d; text-align: center; }
+        .test-question { font-size: 24px; font-weight: bold; color: white; margin-bottom: 10px; }
+        .test-description { color: #aaa; font-size: 14px; margin-bottom: 30px; }
+        .test-input { width: 100%; padding: 16px; background: #252525; border: 1px solid #3d3d3d; border-radius: 20px; color: white; font-size: 18px; text-align: center; margin-bottom: 20px; }
+        .test-unit { color: #aaa; margin-bottom: 20px; }
+        .nav-buttons { display: flex; gap: 12px; justify-content: center; }
+        .btn-test { padding: 14px 28px; border-radius: 40px; font-weight: bold; font-size: 16px; cursor: pointer; border: none; transition: all 0.3s; }
+        .btn-next { background: #4a6fa5; color: white; }
+        .btn-prev { background: #3d3d3d; color: white; }
+        .btn-save { background: #2e7d64; color: white; }
+        .progress-bar { background: #3d3d3d; border-radius: 20px; height: 8px; margin-bottom: 20px; overflow: hidden; }
+        .progress-fill { background: #4a6fa5; height: 100%; border-radius: 20px; transition: width 0.3s; }
+        .progress-text { text-align: center; color: #aaa; font-size: 14px; margin-bottom: 20px; }
+        .result-card { background: #2d2d2d; border-radius: 24px; padding: 24px; margin-top: 20px; border: 1px solid #3d3d3d; }
+        .result-title { font-size: 20px; font-weight: bold; color: white; margin-bottom: 16px; }
+        .result-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #3d3d3d; }
+        .score-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .score-good { background: #2e7d64; color: white; }
+        .score-medium { background: #f0ad4e; color: #1e1e1e; }
+        .score-bad { background: #d9534f; color: white; }
+        .btn-dashboard { width: 100%; padding: 14px; background: #3d3d3d; border: none; border-radius: 40px; color: white; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 16px; text-align: center; text-decoration: none; display: inline-block; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <!-- Выбор даты -->
+        <div class="date-selector">
+            <label style="color: white;">📅 Дата тестирования:</label>
+            <input type="date" id="testDate">
+        </div>
+
+        <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width: 0%"></div></div>
+        <div class="progress-text" id="progressText">Вопрос 1 из 6</div>
+
+        <div id="questionCard" class="test-card">
+            <div class="test-question" id="questionText">Подтягивания</div>
+            <div class="test-description" id="questionDesc">Сколько раз вы можете подтянуться?</div>
+            <input type="number" id="testInput" class="test-input" placeholder="Введите значение">
+            <div class="test-unit" id="testUnit">раз</div>
+            <div class="nav-buttons">
+                <button id="prevBtn" class="btn-test btn-prev" style="display: none;">← Назад</button>
+                <button id="nextBtn" class="btn-test btn-next">Далее →</button>
+                <button id="saveBtn" class="btn-test btn-save" style="display: none;">💾 Сохранить результаты</button>
+            </div>
+        </div>
+
+        <div id="resultsCard" style="display: none;">
+            <div class="result-card">
+                <div class="result-title">📊 Результаты тестирования</div>
+                <div id="resultsList"></div>
+                <div class="result-item" style="margin-top: 16px; background: #252525; border-radius: 16px;">
+                    <span style="color: white; font-weight: bold;">Общая оценка:</span>
+                    <span id="totalScore" style="color: white; font-weight: bold;"></span>
+                </div>
+                <div class="result-item" style="background: #252525; border-radius: 16px;">
+                    <span style="color: white; font-weight: bold;">Уровень:</span>
+                    <span id="totalLevel" style="color: white; font-weight: bold;"></span>
+                </div>
+                <a href="/dashboard" class="btn-dashboard">← Вернуться в дашборд</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let token = localStorage.getItem('token');
+        if (!token) window.location.href = '/login';
+
+        // Устанавливаем сегодняшнюю дату
+        document.getElementById('testDate').value = new Date().toISOString().split('T')[0];
+
+        const tests = [
+            { id: 'pullups', name: '🤸 Подтягивания', desc: 'Сколько раз вы можете подтянуться?', unit: 'раз', norm: 5, reverse: false },
+            { id: 'pushups', name: '📤 Отжимания', desc: 'Сколько отжиманий вы можете сделать?', unit: 'раз', norm: 20, reverse: false },
+            { id: 'benchpress', name: '🏋️ Жим штанги', desc: 'Какой максимальный вес вы можете пожать? (в кг)', unit: 'кг', norm: 60, reverse: false },
+            { id: 'plank', name: '⏱️ Планка', desc: 'Сколько секунд вы можете держать планку?', unit: 'сек', norm: 60, reverse: false },
+            { id: 'run', name: '🏃 Бег 1 км', desc: 'За сколько минут вы пробегаете 1 км?', unit: 'мин', norm: 7, reverse: true },
+            { id: 'walking', name: '🚶 Ходьба', desc: 'Сколько шагов вы проходите в день?', unit: 'шагов/день', norm: 10000, reverse: false }
+        ];
+
+        let currentIndex = 0;
+        let results = { pullups: null, pushups: null, benchpress: null, plank: null, run: null, walking: null };
+
+        async function loadSavedTests() {
+            const testDate = document.getElementById('testDate').value;
+            try {
+                const res = await fetch(`/api/tests/get_by_date?date=${testDate}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.id) {
+                        if (data.pullups) results.pullups = data.pullups;
+                        if (data.pushups) results.pushups = data.pushups;
+                        if (data.benchpress) results.benchpress = data.benchpress;
+                        if (data.plank) results.plank = data.plank;
+                        if (data.run) results.run = data.run;
+                        if (data.walking) results.walking = data.walking;
+                    }
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        function getScoreForTest(test, value) {
+            if (!value || value === 0) return { score: 0, level: 'bad', text: 'Не выполнено' };
+            if (test.reverse) {
+                if (value <= test.norm) return { score: 3, level: 'good', text: 'Отлично' };
+                if (value <= test.norm * 1.3) return { score: 2, level: 'medium', text: 'Хорошо' };
+                return { score: 0, level: 'bad', text: 'Плохо' };
+            } else {
+                if (value >= test.norm * 1.5) return { score: 3, level: 'good', text: 'Отлично' };
+                if (value >= test.norm) return { score: 2, level: 'medium', text: 'Хорошо' };
+                if (value >= test.norm * 0.5) return { score: 1, level: 'bad', text: 'Средне' };
+                return { score: 0, level: 'bad', text: 'Плохо' };
+            }
+        }
+
+        function updateProgress() {
+            const percent = ((currentIndex + 1) / tests.length) * 100;
+            document.getElementById('progressFill').style.width = `${percent}%`;
+            document.getElementById('progressText').textContent = `Вопрос ${currentIndex + 1} из ${tests.length}`;
+        }
+
+        function loadQuestion() {
+            const test = tests[currentIndex];
+            document.getElementById('questionText').textContent = test.name;
+            document.getElementById('questionDesc').textContent = test.desc;
+            document.getElementById('testUnit').textContent = test.unit;
+            document.getElementById('testInput').value = results[test.id] || '';
+            updateProgress();
+            document.getElementById('prevBtn').style.display = currentIndex === 0 ? 'none' : 'block';
+            if (currentIndex === tests.length - 1) {
+                document.getElementById('nextBtn').style.display = 'none';
+                document.getElementById('saveBtn').style.display = 'block';
+            } else {
+                document.getElementById('nextBtn').style.display = 'block';
+                document.getElementById('saveBtn').style.display = 'none';
+            }
+        }
+
+        function saveCurrentValue() {
+            const test = tests[currentIndex];
+            const value = parseFloat(document.getElementById('testInput').value);
+            if (!isNaN(value) && value >= 0) results[test.id] = value;
+        }
+
+        async function saveToServer() {
+            let totalScore = 0;
+            for (const test of tests) {
+                const value = results[test.id];
+                const scoreInfo = getScoreForTest(test, value);
+                totalScore += scoreInfo.score;
+            }
+
+            let levelText = '';
+            const maxScore = tests.length * 3;
+            const percentScore = (totalScore / maxScore) * 100;
+
+            if (percentScore >= 75) levelText = 'Продвинутый уровень';
+            else if (percentScore >= 50) levelText = 'Средний уровень';
+            else if (percentScore >= 25) levelText = 'Начинающий уровень';
+            else levelText = 'Базовый уровень';
+
+            const testDate = document.getElementById('testDate').value;
+
+            const testsData = {
+                test_date: testDate,
+                pullups: results.pullups,
+                pushups: results.pushups,
+                benchpress: results.benchpress,
+                plank: results.plank,
+                run: results.run,
+                walking: results.walking,
+                total_score: totalScore,
+                level: levelText
+            };
+
+            const res = await fetch('/api/tests/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify(testsData)
+            });
+
+            return res.ok;
+        }
+
+        function showResults() {
+            document.getElementById('questionCard').style.display = 'none';
+            document.getElementById('resultsCard').style.display = 'block';
+
+            let totalScore = 0;
+            let resultsHtml = '';
+
+            for (const test of tests) {
+                const value = results[test.id];
+                const scoreInfo = getScoreForTest(test, value);
+                totalScore += scoreInfo.score;
+                let scoreClass = scoreInfo.level === 'good' ? 'score-good' : (scoreInfo.level === 'medium' ? 'score-medium' : 'score-bad');
+
+                let displayValue = value || '—';
+                if (test.id === 'walking' && value) {
+                    displayValue = Math.round(value).toLocaleString();
+                }
+                if (test.id === 'benchpress' && value) {
+                    displayValue = Math.round(value);
+                }
+
+                resultsHtml += `<div class="result-item"><span>${test.name}</span><span>${displayValue} ${test.unit} <span class="score-badge ${scoreClass}">${scoreInfo.text}</span></span></div>`;
+            }
+
+            const maxScore = tests.length * 3;
+            const percentScore = Math.round((totalScore / maxScore) * 100);
+            let levelText = '', levelColor = '';
+            if (percentScore >= 75) { levelText = '🏆 Продвинутый уровень'; levelColor = '#5cb85c'; }
+            else if (percentScore >= 50) { levelText = '💪 Средний уровень'; levelColor = '#f0ad4e'; }
+            else if (percentScore >= 25) { levelText = '🌱 Начинающий уровень'; levelColor = '#ff9800'; }
+            else { levelText = '📖 Базовый уровень'; levelColor = '#d9534f'; }
+
+            document.getElementById('resultsList').innerHTML = resultsHtml;
+            document.getElementById('totalScore').innerHTML = `${totalScore} / ${maxScore} баллов (${percentScore}%)`;
+            document.getElementById('totalLevel').innerHTML = `<span style="color: ${levelColor};">${levelText}</span>`;
+
+            saveToServer().then(() => {
+                alert('Результаты сохранены!');
+            });
+        }
+
+        // При изменении даты загружаем сохранённые тесты
+        document.getElementById('testDate').addEventListener('change', () => {
+            loadSavedTests().then(() => {
+                currentIndex = 0;
+                loadQuestion();
+            });
+        });
+
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            saveCurrentValue();
+            if (currentIndex < tests.length - 1) { currentIndex++; loadQuestion(); }
+        });
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            saveCurrentValue();
+            if (currentIndex > 0) { currentIndex--; loadQuestion(); }
+        });
+        document.getElementById('saveBtn').addEventListener('click', () => {
+            saveCurrentValue();
+            showResults();
+        });
+
+        loadSavedTests();
+        loadQuestion();
+    </script>
+</body>
+</html>

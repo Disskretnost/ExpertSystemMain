@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Рекомендации по упражнениям - Персональный тренер</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #1a1a1a;
+        }
+
+        .advice-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .advice-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 24px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .advice-header h1 {
+            color: white;
+            margin: 0 0 10px 0;
+            font-size: 28px;
+        }
+
+        .advice-header p {
+            color: rgba(255,255,255,0.9);
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .advice-content {
+            background: #2d2d2d;
+            border-radius: 24px;
+            padding: 35px;
+            border: 1px solid #3d3d3d;
+        }
+
+        /* ПРИНУДИТЕЛЬНО ОДИН ЦВЕТ ДЛЯ ВСЕГО ТЕКСТА */
+        .advice-content,
+        .advice-content * {
+            color: #e0e0e0 !important;
+        }
+
+        /* Заголовки H2 - чуть светлее и с подчёркиванием */
+        .advice-content h2 {
+            color: #ffffff !important;
+            font-size: 24px;
+            margin-top: 35px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #4a6fa5;
+        }
+
+        /* Заголовки H3 - акцентные, голубые */
+        .advice-content h3 {
+            color: #4a6fa5 !important;
+            font-size: 20px;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        /* Заголовки H4 */
+        .advice-content h4 {
+            color: #ff9800 !important;
+            font-size: 18px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        /* Параграфы */
+        .advice-content p {
+            line-height: 1.7;
+            margin-bottom: 16px;
+            font-size: 16px;
+        }
+
+        /* Списки */
+        .advice-content ul, .advice-content ol {
+            margin: 12px 0 20px 25px;
+            padding-left: 10px;
+        }
+
+        .advice-content li {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+
+        /* Вложенные списки */
+        .advice-content ul ul, .advice-content ol ol {
+            margin: 8px 0 8px 25px;
+        }
+
+        /* Таблица */
+        .advice-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: #1e1e1e;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .advice-content th, .advice-content td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #3d3d3d;
+        }
+
+        .advice-content th {
+            background: #252525;
+            font-weight: bold;
+        }
+
+        .advice-content tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Горизонтальная линия */
+        .advice-content hr {
+            border: none;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #4a6fa5, transparent);
+            margin: 25px 0;
+        }
+
+        /* Блок с советами */
+        .advice-content blockquote {
+            background: #1e1e1e;
+            border-left: 4px solid #4a6fa5;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 12px;
+        }
+
+        /* Загрузка */
+        .loading {
+            text-align: center;
+            padding: 60px 40px;
+            color: #aaa !important;
+        }
+
+        .spinner {
+            border: 3px solid #3d3d3d;
+            border-top: 3px solid #4a6fa5;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 25px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Кнопка назад */
+        .btn-back {
+            display: inline-block;
+            padding: 12px 28px;
+            background: #3d3d3d;
+            border: none;
+            border-radius: 40px;
+            color: white !important;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .btn-back:hover {
+            background: #4a6fa5;
+            transform: translateY(-2px);
+        }
+
+        /* Ошибка */
+        .error-message {
+            background: #8b3a3a;
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .advice-container {
+                padding: 15px;
+            }
+
+            .advice-content {
+                padding: 20px;
+            }
+
+            .advice-content h2 {
+                font-size: 22px;
+            }
+
+            .advice-content h3 {
+                font-size: 18px;
+            }
+
+            .advice-content table {
+                font-size: 12px;
+            }
+
+            .advice-content th, .advice-content td {
+                padding: 8px 10px;
+            }
+        }
+
+        /* Анимация появления */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .advice-content {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Для таблиц с прокруткой */
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="advice-container">
+        <div class="advice-header">
+            <h1>🏋️ Персональные рекомендации по упражнениям</h1>
+            <p>На основе анализа ваших последних 4 тренировок, динамики веса и поставленной цели</p>
+        </div>
+
+        <div class="advice-content" id="adviceContent">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>🔍 Анализируем ваши тренировки...</p>
+                <p style="font-size: 14px; margin-top: 10px;">ИИ-тренер изучает ваши результаты и готовит персональные рекомендации</p>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="/dashboard" class="btn-back">← Вернуться в дашборд</a>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/login';
+        }
+
+        async function loadExerciseAdvice() {
+            const contentDiv = document.getElementById('adviceContent');
+
+            try {
+                const response = await fetch('/api/ai/exercise-advice', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.recommendations) {
+                    let cleanText = data.recommendations;
+
+                    // Удаляем маркеры жирного текста ** **
+                    cleanText = cleanText.replace(/\*\*(.*?)\*\*/g, '$1');
+
+                    // Удаляем маркеры курсива * *
+                    cleanText = cleanText.replace(/\*(.*?)\*/g, '$1');
+
+                    // ИСПРАВЛЯЕМ ДИНАМИКУ: убираем косую черту и лишние символы
+                    // (динамика: +3 / -0 за 4 тренировки) -> (динамика: +3)
+                    cleanText = cleanText.replace(/\(динамика:\s*([+-]\d+)\s*\/\s*[+-]\d+\s*(за.*?)\)/g, '(динамика: $1)');
+
+                    // Также убираем если написано (динамика: +2 / -0) без "за"
+                    cleanText = cleanText.replace(/\(динамика:\s*([+-]\d+)\s*\/\s*[+-]\d+\s*\)/g, '(динамика: $1)');
+
+                    // Убираем лишние пробелы в таблицах между | и текстом
+                    cleanText = cleanText.replace(/\|\s+/g, '|');
+                    cleanText = cleanText.replace(/\s+\|/g, '|');
+
+                    // Убираем пустые строки-разделители таблиц, которые портят формат
+                    cleanText = cleanText.replace(/^\|\s*[-:]+\s*\|$/gm, '');
+
+                    let html = formatToHTML(cleanText);
+                    contentDiv.innerHTML = html;
+                } else {
+                    contentDiv.innerHTML = '<div class="error-message">⚠️ Не удалось получить рекомендации. Попробуйте позже.</div>';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                contentDiv.innerHTML = `
+                    <div class="error-message">
+                        <h3>⚠️ Ошибка загрузки</h3>
+                        <p>Не удалось получить рекомендации. Убедитесь, что вы прошли фитнес-тестирование хотя бы 4 раза для качественного анализа.</p>
+                        <p style="margin-top: 15px; font-size: 14px;">Техническая ошибка: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function formatToHTML(text) {
+            let html = text;
+
+            // Обрабатываем заголовки
+            html = html.replace(/^## (.*?)$/gm, '<h2>$1</h2>');
+            html = html.replace(/^### (.*?)$/gm, '<h3>$1</h3>');
+            html = html.replace(/^#### (.*?)$/gm, '<h4>$1</h4>');
+
+            // Горизонтальные линии
+            html = html.replace(/^---$/gm, '<hr>');
+
+            // Цитаты
+            html = html.replace(/^&gt; (.*?)$/gm, '<blockquote>$1</blockquote>');
+
+            // Разбиваем на строки для обработки списков
+            let lines = html.split('\n');
+            let result = [];
+            let inList = false;
+            let listType = null;
+
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i];
+
+                // Проверка на маркированный список
+                const ulMatch = line.match(/^(\s*)[-*]\s+(.*)$/);
+                // Проверка на нумерованный список
+                const olMatch = line.match(/^(\s*)\d+\.\s+(.*)$/);
+                // Проверка на заголовок
+                const isHeader = line.match(/^<h[2-4]>/);
+                // Проверка на пустую строку
+                const isEmpty = line.trim() === '';
+
+                if (ulMatch && !isHeader) {
+                    const content = ulMatch[2];
+
+                    if (!inList || listType !== 'ul') {
+                        if (inList) result.push('</ul>');
+                        result.push('<ul>');
+                        inList = true;
+                        listType = 'ul';
+                    }
+
+                    result.push(`<li>${content}</li>`);
+
+                } else if (olMatch && !isHeader) {
+                    const content = olMatch[2];
+
+                    if (!inList || listType !== 'ol') {
+                        if (inList) result.push('</ol>');
+                        result.push('<ol>');
+                        inList = true;
+                        listType = 'ol';
+                    }
+
+                    result.push(`<li>${content}</li>`);
+
+                } else {
+                    // Закрываем список если он был открыт
+                    if (inList) {
+                        result.push(listType === 'ul' ? '</ul>' : '</ol>');
+                        inList = false;
+                        listType = null;
+                    }
+
+                    // Обрабатываем обычные строки
+                    if (isEmpty) {
+                        result.push('');
+                    } else if (!line.match(/^<h[2-4]>/i) && !line.match(/^<hr>$/i) && !line.match(/^<blockquote>/i)) {
+                        if (!line.trim().startsWith('<')) {
+                            result.push(`<p>${line}</p>`);
+                        } else {
+                            result.push(line);
+                        }
+                    } else {
+                        result.push(line);
+                    }
+                }
+            }
+
+            // Закрываем открытый список
+            if (inList) {
+                result.push(listType === 'ul' ? '</ul>' : '</ol>');
+            }
+
+            html = result.join('\n');
+
+            // Обработка таблиц
+            html = processMarkdownTables(html);
+
+            // Удаляем пустые параграфы
+            html = html.replace(/<p>\s*<\/p>/g, '');
+
+            return html;
+        }
+
+        function processMarkdownTables(text) {
+            const lines = text.split('\n');
+            let result = [];
+            let inTable = false;
+            let tableRows = [];
+            let headerRow = null;
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                const trimmed = line.trim();
+
+                // Проверка на строку таблицы (начинается и заканчивается на |)
+                if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
+                    // Пропускаем разделительные строки (|---|)
+                    if (trimmed.match(/^\|[\s\-:|]+\|$/)) {
+                        continue;
+                    }
+
+                    if (!inTable) {
+                        inTable = true;
+                        tableRows = [];
+                    }
+                    tableRows.push(trimmed);
+                } else {
+                    if (inTable && tableRows.length > 0) {
+                        // Преобразуем таблицу в HTML
+                        let tableHtml = '<div class="table-wrapper"><table>';
+
+                        for (let j = 0; j < tableRows.length; j++) {
+                            const row = tableRows[j];
+                            // Парсим ячейки
+                            const cells = row.split('|').filter(cell => cell.trim() !== '');
+
+                            tableHtml += '<tr>';
+                            for (let cell of cells) {
+                                if (j === 0) {
+                                    tableHtml += `<th>${cell.trim()}</th>`;
+                                } else {
+                                    tableHtml += `<td>${cell.trim()}</td>`;
+                                }
+                            }
+                            tableHtml += '</tr>';
+                        }
+
+                        tableHtml += '</table></div>';
+                        result.push(tableHtml);
+                        inTable = false;
+                        tableRows = [];
+                    }
+                    result.push(line);
+                }
+            }
+
+            // Обработка последней таблицы
+            if (inTable && tableRows.length > 0) {
+                let tableHtml = '<div class="table-wrapper"><table>';
+                for (let j = 0; j < tableRows.length; j++) {
+                    const row = tableRows[j];
+                    const cells = row.split('|').filter(cell => cell.trim() !== '');
+
+                    tableHtml += '<tr>';
+                    for (let cell of cells) {
+                        if (j === 0) {
+                            tableHtml += `<th>${cell.trim()}</th>`;
+                        } else {
+                            tableHtml += `<td>${cell.trim()}</td>`;
+                        }
+                    }
+                    tableHtml += '</tr>';
+                }
+                tableHtml += '</table></div>';
+                result.push(tableHtml);
+            }
+
+            return result.join('\n');
+        }
+
+        loadExerciseAdvice();
+    </script>
+</body>
+</html>

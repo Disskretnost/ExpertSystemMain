@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Рекомендации по питанию - Персональный тренер</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #1e1e1e;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        .advice-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .advice-header {
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+            border-radius: 24px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            color: #1e1e1e;
+        }
+
+        .advice-header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .advice-header p {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        .advice-card {
+            background: #2d2d2d;
+            border-radius: 24px;
+            padding: 30px;
+            border: 1px solid #3d3d3d;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #3d3d3d;
+            border-top-color: #4a6fa5;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            text-align: center;
+            color: #aaa;
+            margin-top: 20px;
+        }
+
+        .ai-advice {
+            line-height: 1.6;
+            font-size: 15px;
+            color: #ffffff;
+        }
+
+        .ai-advice h1 {
+            font-size: 1.6rem;
+            color: #43e97b;
+            margin-top: 20px;
+            margin-bottom: 12px;
+            border-bottom: 2px solid #43e97b;
+            padding-bottom: 6px;
+        }
+
+        .ai-advice h2 {
+            font-size: 1.4rem;
+            color: #43e97b;
+            margin-top: 18px;
+            margin-bottom: 10px;
+        }
+
+        .ai-advice h3 {
+            font-size: 1.2rem;
+            color: #ff9800;
+            margin-top: 14px;
+            margin-bottom: 8px;
+        }
+
+        .ai-advice p {
+            margin: 8px 0;
+            color: #ddd;
+            line-height: 1.5;
+        }
+
+        .ai-advice ul, .ai-advice ol {
+            margin: 8px 0;
+            padding-left: 25px;
+        }
+
+        .ai-advice li {
+            margin: 5px 0;
+            color: #ddd;
+            line-height: 1.5;
+        }
+
+        .ai-advice strong {
+            color: #ff9800;
+            font-weight: bold;
+        }
+
+        .ai-advice table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background: #1e1e1e;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .ai-advice th {
+            background: #4a6fa5;
+            color: white;
+            padding: 10px 12px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .ai-advice td {
+            padding: 8px 12px;
+            color: #ddd;
+            border-bottom: 1px solid #3d3d3d;
+            font-size: 14px;
+        }
+
+        .ai-advice tr:last-child td {
+            border-bottom: none;
+        }
+
+        .btn-back {
+            display: inline-block;
+            width: 100%;
+            padding: 14px;
+            background: #3d3d3d;
+            border: none;
+            border-radius: 40px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .btn-back:hover {
+            background: #4a6fa5;
+            transform: translateY(-2px);
+        }
+
+        .refresh-btn {
+            background: #43e97b;
+            color: #1e1e1e;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            margin-bottom: 20px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+
+        .error-message {
+            background: #d9534f;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .total-line {
+            background: #1e3a3a;
+            border-left: 4px solid #ff9800;
+            padding: 10px 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-weight: bold;
+            color: #ff9800;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: #1e1e1e;
+            border-radius: 16px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-label {
+            color: #aaa;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            color: #ff9800;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .stat-unit {
+            color: #666;
+            font-size: 11px;
+        }
+
+        /* Стиль для списка анализа */
+        .analysis-list {
+            background: #1e1e1e;
+            border-radius: 16px;
+            padding: 0;
+            margin: 20px 0;
+            list-style: none;
+        }
+
+        .analysis-list li {
+            padding: 12px 20px;
+            border-bottom: 1px solid #3d3d3d;
+            margin: 0;
+            color: #ddd;
+            line-height: 1.5;
+        }
+
+        .analysis-list li:last-child {
+            border-bottom: none;
+        }
+
+        .analysis-list strong {
+            color: #ff9800;
+        }
+
+        .analysis-conclusion {
+            background: #1e3a3a;
+            border-left: 4px solid #ff9800;
+        }
+    </style>
+</head>
+<body>
+    <div class="advice-container">
+        <div class="advice-header">
+            <h1>🥗 Персональные рекомендации по питанию</h1>
+            <p>Индивидуальный план на основе ваших данных</p>
+        </div>
+
+        <div class="advice-card">
+            <button class="refresh-btn" onclick="loadAIAdvice()">🔄 Обновить рекомендации</button>
+
+            <div id="aiAdviceContainer">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">Анализируем ваше питание...</div>
+            </div>
+        </div>
+
+        <a href="/dashboard" class="btn-back">← Вернуться в дашборд</a>
+    </div>
+
+    <script>
+        let token = localStorage.getItem('token');
+        if (!token) window.location.href = '/login';
+
+        async function loadAIAdvice() {
+            const container = document.getElementById('aiAdviceContainer');
+            container.innerHTML = '<div class="loading-spinner"></div><div class="loading-text">Анализируем ваши данные...</div>';
+
+            try {
+                const res = await fetch('/api/ai/nutrition-advice', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    displayAIAdvice(data.recommendations);
+                } else {
+                    const error = await res.json();
+                    container.innerHTML = `<div class="error-message">❌ ${error.detail || 'Ошибка получения рекомендаций'}</div>`;
+                }
+            } catch (err) {
+                container.innerHTML = '<div class="error-message">❌ Ошибка соединения с сервером</div>';
+            }
+        }
+
+        function displayAIAdvice(recommendations) {
+            const container = document.getElementById('aiAdviceContainer');
+
+            let html = recommendations;
+
+            // Очищаем лишние символы
+            html = html.replace(/[─═░▒▓█]/g, '');
+            html = html.replace(/\t/g, ' ');
+            html = html.replace(/&nbsp;/g, ' ');
+
+            // Обрабатываем заголовки
+            html = html.replace(/^# (.*?)$/gm, '<h1>$1</h1>');
+            html = html.replace(/^## (.*?)$/gm, '<h2>$1</h2>');
+            html = html.replace(/^### (.*?)$/gm, '<h3>$1</h3>');
+
+            // Обрабатываем жирный текст
+            html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+            // ВАЖНО: Сначала парсим списки, чтобы анализ превратился в <ul><li>...</li></ul>
+            html = html.replace(/^[\*\-•] (.*?)$/gm, '<li>$1</li>');
+            html = html.replace(/(<li>.*?<\/li>)+/gs, (match) => {
+                if (!match.includes('<ul>')) {
+                    return `<ul class="advice-list">${match}</ul>`;
+                }
+                return match;
+            });
+
+            // ПАРСИМ АНАЛИЗ (ищем уже готовый список <ul> с нужными ключевыми словами)
+            const analysisSectionMatch = html.match(/<ul[^>]*>([\s\S]*?<li>[\s\S]*?Среднее потребление[\s\S]*?<\/ul>)/i);
+
+            if (analysisSectionMatch) {
+                const fullSectionHtml = analysisSectionMatch[0];
+                const sectionContent = analysisSectionMatch[1];
+
+                // Вспомогательная функция для извлечения чистого текста из <li>
+                const extractLiText = (content, keyword) => {
+                    const regex = new RegExp(`<li[^>]*>[\\s\\S]*?${keyword}[\\s\\S]*?<\\/li>`, 'i');
+                    const match = content.match(regex);
+                    if (match) {
+                        return match[0].replace(/<[^>]+>/g, '').trim();
+                    }
+                    return '';
+                };
+
+                const avgTextRaw = extractLiText(sectionContent, 'Среднее потребление');
+                const targetTextRaw = extractLiText(sectionContent, 'Цель');
+                const conclusionTextRaw = extractLiText(sectionContent, 'Вывод');
+
+                const cleanText = (text, keyword) => {
+                    let clean = text.replace(new RegExp(`^${keyword}:`, 'i'), '').trim();
+                    return clean || text;
+                };
+
+                let avgText = cleanText(avgTextRaw, 'Среднее потребление');
+                let targetText = cleanText(targetTextRaw, 'Цель');
+                let conclusionText = cleanText(conclusionTextRaw, 'Вывод');
+
+                // Формируем красивый HTML для анализа (список)
+                let analysisItems = '';
+                if (avgTextRaw) analysisItems += `<li><strong>📊 Среднее потребление:</strong> ${avgText}</li>`;
+                if (targetTextRaw) analysisItems += `<li><strong>🎯 Цель:</strong> ${targetText}</li>`;
+                if (conclusionTextRaw) analysisItems += `<li class="analysis-conclusion"><strong>💡 Вывод:</strong> ${conclusionText}</li>`;
+
+                const analysisHtml = `
+                    <ul class="analysis-list">
+                        ${analysisItems}
+                    </ul>
+                `;
+
+                // Заменяем старый список на новый
+                html = html.replace(fullSectionHtml, analysisHtml);
+
+                // Извлекаем цифры
+                const avgNumbers = avgTextRaw.match(/(\d+)\s*ккал\/день,\s*(\d+)\s*г белка,\s*(\d+)\s*г жиров,\s*(\d+)\s*г углеводов/);
+                const targetNumbers = targetTextRaw.match(/(\d+)\s*ккал\/день,\s*(\d+)\s*г белка,\s*(\d+)\s*г жиров,\s*(\d+)\s*г углеводов/);
+
+                if (avgNumbers && targetNumbers) {
+                    // ПРОСТОЙ ВИД СПИСКОМ
+                    const statsHtml = `
+                        <div style="margin-top: 20px; background: #1e1e1e; border-radius: 12px; padding: 15px; border-left: 4px solid #ff9800;">
+                            <div style="margin-bottom: 8px; font-size: 15px; line-height: 1.4;">
+                                <strong style="color: #ff9800;">🔥 Калории:</strong>
+                                <span style="color: #ddd;">${avgNumbers[1]} / ${targetNumbers[1]} ккал</span>
+                            </div>
+                            <div style="margin-bottom: 8px; font-size: 15px; line-height: 1.4;">
+                                <strong style="color: #ff9800;">🥩 Белки:</strong>
+                                <span style="color: #ddd;">${avgNumbers[2]} / ${targetNumbers[2]} г</span>
+                            </div>
+                            <div style="margin-bottom: 8px; font-size: 15px; line-height: 1.4;">
+                                <strong style="color: #ff9800;">🍖 Жиры:</strong>
+                                <span style="color: #ddd;">${avgNumbers[3]} / ${targetNumbers[3]} г</span>
+                            </div>
+                            <div style="font-size: 15px; line-height: 1.4;">
+                                <strong style="color: #ff9800;">🍚 Углеводы:</strong>
+                                <span style="color: #ddd;">${avgNumbers[4]} / ${targetNumbers[4]} г</span>
+                            </div>
+                        </div>
+                    `;
+
+                    // Вставляем статистику после списка анализа
+                    html = html.replace(/(<ul class="analysis-list">[\s\S]*?<\/ul>)/, '$1' + statsHtml);
+                }
+            }
+
+            // Обрабатываем строки итогов для таблиц
+            html = html.replace(/\*\*Итого:\*\* (\d+) ккал, (\d+) г белка, (\d+) г жиров, (\d+) г углеводов/g,
+                '<div class="total-line">📊 <strong>Итого:</strong> $1 ккал | $2 г белка | $3 г жиров | $4 г углеводов</div>');
+            html = html.replace(/\*\*Итого:\*\* (\d+) ккал \| (\d+) г белка \| (\d+) г жиров \| (\d+) г углеводов/g,
+                '<div class="total-line">📊 <strong>Итого:</strong> $1 ккал | $2 г белка | $3 г жиров | $4 г углеводов</div>');
+            html = html.replace(/\*\*Итого завтрак:\*\* (\d+) ккал, (\d+) г белка, (\d+) г жиров, (\d+) г углеводов/g,
+                '<div class="total-line">🍳 <strong>Итого завтрак:</strong> $1 ккал | $2 г белка | $3 г жиров | $4 г углеводов</div>');
+            html = html.replace(/\*\*Итого обед:\*\* (\d+) ккал, (\d+) г белка, (\d+) г жиров, (\d+) г углеводов/g,
+                '<div class="total-line">🍱 <strong>Итого обед:</strong> $1 ккал | $2 г белка | $3 г жиров | $4 г углеводов</div>');
+            html = html.replace(/\*\*Итого полдник:\*\* (\d+) ккал, (\d+) г белка, (\d+) г жиров, (\d+) г углеводов/g,
+                '<div class="total-line">🍎 <strong>Итого полдник:</strong> $1 ккал | $2 г белка | $3 г жиров | $4 г углеводов</div>');
+            html = html.replace(/\*\*Итого ужин:\*\* (\d+) ккал, (\d+) г белка, (\d+) г жиров, (\d+) г углеводов/g,
+                '<div class="total-line">🍽️ <strong>Итого ужин:</strong> $1 ккал | $2 г белка | $3 г жиров | $4 г углеводов</div>');
+            html = html.replace(/\*\*Итого перекус:\*\* (\d+) ккал, (\d+) г белка, (\d+) г жиров, (\d+) г углеводов/g,
+                '<div class="total-line">🍪 <strong>Итого перекус:</strong> $1 ккал | $2 г белка | $3 г жиров | $4 г углеводов</div>');
+
+            // Обрабатываем таблицы
+            const lines = html.split('\n');
+            let resultLines = [];
+            let inTable = false;
+            let tableRows = [];
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                const trimmedLine = line.trim();
+
+                if (trimmedLine.startsWith('|') && trimmedLine.endsWith('|')) {
+                    if (!inTable) {
+                        inTable = true;
+                        tableRows = [];
+                    }
+                    tableRows.push(trimmedLine);
+                } else {
+                    if (inTable && tableRows.length > 0) {
+                        let tableHtml = '<table>';
+                        let isHeader = true;
+
+                        for (let row of tableRows) {
+                            if (row.includes('---') || row.includes('-----')) continue;
+                            const cells = row.split('|').filter(cell => cell.trim() !== '');
+                            if (cells.length === 0) continue;
+
+                            if (isHeader) {
+                                tableHtml += '<thead><tr>';
+                                for (let cell of cells) {
+                                    tableHtml += `<th>${cell.trim()}</th>`;
+                                }
+                                tableHtml += '</tr></thead><tbody>';
+                                isHeader = false;
+                            } else {
+                                tableHtml += '<tr>';
+                                for (let cell of cells) {
+                                    tableHtml += `<td>${cell.trim()}</td>`;
+                                }
+                                tableHtml += '</tr>';
+                            }
+                        }
+                        tableHtml += '</tbody></table>';
+                        resultLines.push(tableHtml);
+                        inTable = false;
+                        tableRows = [];
+                    }
+                    resultLines.push(line);
+                }
+            }
+
+            if (inTable && tableRows.length > 0) {
+                let tableHtml = '</table>';
+                let isHeader = true;
+                for (let row of tableRows) {
+                    if (row.includes('---') || row.includes('-----')) continue;
+                    const cells = row.split('|').filter(cell => cell.trim() !== '');
+                    if (cells.length === 0) continue;
+
+                    if (isHeader) {
+                        tableHtml += '<thead><tr>';
+                        for (let cell of cells) {
+                            tableHtml += `<th>${cell.trim()}</th>`;
+                        }
+                        tableHtml += '</tr></thead><tbody>';
+                        isHeader = false;
+                    } else {
+                        tableHtml += '<tr>';
+                        for (let cell of cells) {
+                            tableHtml += `<td>${cell.trim()}</td>`;
+                        }
+                        tableHtml += '</tr>';
+                    }
+                }
+                tableHtml += '</tbody></table>';
+                resultLines.push(tableHtml);
+            }
+
+            html = resultLines.join('\n');
+
+            container.innerHTML = `<div class="ai-advice">${html}</div>`;
+        }
+        loadAIAdvice();
+    </script>
+</body>
+</html>

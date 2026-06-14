@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход - Персональный тренер</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        body {
+            background: #1e1e1e;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .form-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 2rem;
+        }
+        .form-card {
+            background: #2d2d2d;
+            border-radius: 28px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 450px;
+            border: 1px solid #3d3d3d;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        .form-card h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: white;
+            font-size: 1.8rem;
+        }
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #aaa;
+            font-weight: 500;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 14px 18px;
+            background: #252525;
+            border: 1px solid #3d3d3d;
+            border-radius: 20px;
+            color: white;
+            font-size: 1rem;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            border-radius: 40px;
+            font-weight: 600;
+            background: #4a6fa5;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-primary:hover {
+            background: #5a7fb5;
+        }
+        .form-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #888;
+        }
+        .form-footer a {
+            color: white;
+            text-decoration: none;
+        }
+        .error-msg {
+            color: #d9534f;
+            text-align: center;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <div class="form-card">
+            <h2>🔐 Вход в систему</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Имя пользователя или Email</label>
+                    <input type="text" id="username_or_email" required placeholder="Введите имя или email">
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" id="password" required placeholder="Введите пароль">
+                </div>
+                <button type="submit" class="btn-primary">Войти</button>
+            </form>
+            <p class="form-footer">Нет аккаунта? <a href="/register">Зарегистрироваться</a></p>
+            <div id="errorMsg" class="error-msg"></div>
+        </div>
+    </div>
+
+    <script>
+        function setCookie(name, value, days = 7) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            document.cookie = `${name}=${value}; path=/; expires=${date.toUTCString()}`;
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const username_or_email = document.getElementById('username_or_email').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMsg');
+            errorMsg.textContent = '';
+
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username_or_email, password })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+
+                    // Сохраняем токен в localStorage (для API запросов)
+                    localStorage.setItem('token', data.access_token);
+                    localStorage.setItem('userId', data.user_id);
+                    localStorage.setItem('username', data.username);
+
+                    // Сохраняем токен в cookies (для страниц)
+                    setCookie('token', data.access_token);
+
+                    window.location.href = '/dashboard';
+                } else {
+                    const error = await res.json();
+                    errorMsg.textContent = error.detail || 'Неверные данные';
+                }
+            } catch (err) {
+                errorMsg.textContent = 'Ошибка соединения с сервером';
+            }
+        });
+    </script>
+</body>
+</html>

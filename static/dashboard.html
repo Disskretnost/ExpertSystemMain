@@ -1,0 +1,691 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет - Персональный тренер</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: #252525;
+            border-radius: 20px;
+            padding: 16px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: white;
+        }
+        .stat-label {
+            color: #aaa;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .test-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        .test-btn {
+            flex: 1;
+            text-align: center;
+            padding: 1.2rem;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s;
+            font-size: 1.1rem;
+        }
+        .test-btn:hover { transform: translateY(-5px); }
+        .profile-btn { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+        .fitness-btn { background: linear-gradient(135deg, #f093fb, #f5576c); color: white; }
+        .nutrition-btn { background: linear-gradient(135deg, #ff9800, #f44336); color: white; }
+        .advice-btn { background: linear-gradient(135deg, #43e97b, #38f9d7); color: #1e1e1e; }
+        .exercise-advice-btn { background: linear-gradient(135deg, #fa709a, #fee140); color: #1e1e1e; }
+        .results-card {
+            background: #2d2d2d;
+            border-radius: 24px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #3d3d3d;
+        }
+        .info-highlight {
+            background: #252525;
+            border-radius: 16px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #3d3d3d;
+        }
+        .info-row:last-child { border-bottom: none; }
+        .info-label { color: #aaa; }
+        .info-value { color: white; font-weight: bold; }
+        .chart-container {
+            background: #252525;
+            border-radius: 16px;
+            padding: 16px;
+            margin-top: 16px;
+            min-height: 550px;
+            position: relative;
+        }
+        canvas { max-height: 550px; width: 100%; }
+        .no-data {
+            text-align: center;
+            color: #aaa;
+            padding: 40px;
+        }
+        .chart-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .chart-toggle-btn {
+            padding: 8px 16px;
+            background: #252525;
+            border: 1px solid #3d3d3d;
+            border-radius: 20px;
+            color: #aaa;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 12px;
+        }
+        .chart-toggle-btn:hover { background: #3d3d3d; }
+        .chart-toggle-btn.active { background: #4a6fa5; color: white; border-color: #4a6fa5; }
+        .legend-note {
+            font-size: 12px;
+            color: #aaa;
+            text-align: center;
+            margin-top: 10px;
+            padding: 8px;
+            background: #252525;
+            border-radius: 8px;
+        }
+        .level-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .level-high { background: #5cb85c; color: white; }
+        .level-medium { background: #f0ad4e; color: #1e1e1e; }
+        .level-low { background: #d9534f; color: white; }
+        .calories-remaining {
+            margin-top: 8px;
+            font-size: 12px;
+        }
+        .calories-remaining.good { color: #5cb85c; }
+        .calories-remaining.warning { color: #f0ad4e; }
+        .calories-remaining.bad { color: #d9534f; }
+        .logout-btn {
+            background: #d9534f;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .logout-btn:hover { background: #c9302c; transform: translateY(-2px); }
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .advice-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        .advice-btn {
+            flex: 1;
+            text-align: center;
+            padding: 1rem;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+        .advice-btn:hover { transform: translateY(-5px); }
+        .nutrition-advice { background: linear-gradient(135deg, #43e97b, #38f9d7); color: #1e1e1e; }
+        .exercise-advice { background: linear-gradient(135deg, #fa709a, #fee140); color: #1e1e1e; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="dashboard-header">
+            <div class="user-info">
+                <h2>👋 Добро пожаловать, <span id="username">...</span>!</h2>
+                <p>Ваша персональная панель фитнес-тренера</p>
+            </div>
+            <button onclick="logout()" class="logout-btn">🚪 Выйти</button>
+        </div>
+
+        <div class="test-buttons">
+            <a href="/profile" class="test-btn profile-btn">📏 Мои параметры</a>
+            <a href="/fitness-test" class="test-btn fitness-btn">💪 Фитнес-тест</a>
+            <a href="/nutrition" class="test-btn nutrition-btn">🍽️ Дневник питания</a>
+        </div>
+
+        <div class="advice-buttons">
+            <a href="/nutrition-advice" class="advice-btn nutrition-advice">🥗 Рекомендации по питанию</a>
+            <a href="/exercise-advice" class="advice-btn exercise-advice">🏋️ Рекомендации по упражнениям</a>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="currentWeight">—</div>
+                <div class="stat-label">Текущий вес (кг)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="fitnessLevel">—</div>
+                <div class="stat-label">Уровень подготовки</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="dailyCaloriesNorm">—</div>
+                <div class="stat-label">Норма ккал/день</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="todayCalories">—</div>
+                <div class="stat-label" id="todayCaloriesLabel">Калорий сегодня</div>
+            </div>
+        </div>
+
+        <div class="results-card">
+            <h3>📊 Полная динамика показателей</h3>
+            <div class="chart-controls">
+                <button class="chart-toggle-btn active" data-metric="all">📈 Все показатели</button>
+                <button class="chart-toggle-btn" data-metric="fitness">💪 Тренировки</button>
+                <button class="chart-toggle-btn" data-metric="nutrition">🍽️ Питание</button>
+                <button class="chart-toggle-btn" data-metric="exercises">🏋️ Упражнения</button>
+            </div>
+            <div class="chart-container">
+                <canvas id="fullChart"></canvas>
+            </div>
+            <div class="legend-note">
+                💡 Нагрузка = Подтягивания + Отжимания + Жим штанги + (Планка/10) + (Ходьба/1000) | 🔥 Калории за день | ⚖️ Вес
+            </div>
+        </div>
+
+        <div class="results-card">
+            <h3>📋 Ваши параметры</h3>
+            <div id="profileInfo"></div>
+        </div>
+    </div>
+
+    <script>
+        let fullChart = null;
+        let token = localStorage.getItem('token');
+        let currentMetric = 'all';
+        let dailyCaloriesNormValue = 0;
+
+        if (!token) window.location.href = '/login';
+
+        function calculateLoad(item) {
+            if (!item) return 0;
+            let p = item.pullups || 0;
+            let pu = item.pushups || 0;
+            let bp = item.benchpress || 0;
+            let pl = item.plank ? (item.plank / 10) : 0;
+            let w = item.walking ? Math.round((item.walking || 0) / 1000) : 0;
+            return Math.round(p + pu + bp + pl + w);
+        }
+
+        function formatDateTime(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
+        }
+
+        function getDatasetConfig(label, data, color, yAxisID = 'y', type = 'line', order = 1) {
+            const config = {
+                label: label,
+                data: data,
+                borderColor: color,
+                borderWidth: 2,
+                tension: 0.3,
+                pointBackgroundColor: color,
+                pointBorderColor: 'white',
+                pointRadius: 3,
+                pointHoverRadius: 5,
+                fill: false,
+                yAxisID: yAxisID,
+                order: order
+            };
+
+            if (type === 'bar') {
+                config.type = 'bar';
+                config.backgroundColor = color + '80';
+                config.borderColor = color;
+                config.borderWidth = 1;
+                config.pointRadius = 0;
+            } else {
+                config.type = 'line';
+                config.backgroundColor = 'transparent';
+            }
+
+            return config;
+        }
+
+        async function loadUserInfo() {
+            try {
+                const res = await fetch('/api/me', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const user = await res.json();
+                    document.getElementById('username').textContent = user.username;
+                } else {
+                    logout();
+                }
+            } catch (err) {
+                logout();
+            }
+        }
+
+        async function loadProfile() {
+            try {
+                const res = await fetch('/api/profile/get', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const profile = await res.json();
+                    if (profile && profile.id) {
+                        document.getElementById('currentWeight').textContent = profile.weight;
+                        dailyCaloriesNormValue = profile.daily_calories || 0;
+                        document.getElementById('dailyCaloriesNorm').textContent = dailyCaloriesNormValue || '—';
+
+                        let goalText = '';
+                        if (profile.goal === 'lose') goalText = '🔥 Похудеть';
+                        else if (profile.goal === 'gain') goalText = '💪 Набрать массу';
+                        else goalText = '⚖️ Поддерживать форму';
+
+                        let targetWeightHtml = '';
+                        if (profile.target_weight) {
+                            targetWeightHtml = `<div class="info-row">
+                                <span class="info-label">🎯 Желаемый вес</span>
+                                <span class="info-value">${profile.target_weight} кг</span>
+                            </div>`;
+                        }
+
+                        document.getElementById('profileInfo').innerHTML = `
+                            <div class="info-highlight">
+                                <div class="info-row">
+                                    <span class="info-label">📏 Рост / Вес</span>
+                                    <span class="info-value">${profile.height} см / ${profile.weight} кг</span>
+                                </div>
+                                ${targetWeightHtml}
+                                <div class="info-row">
+                                    <span class="info-label">📊 ИМТ</span>
+                                    <span class="info-value">${profile.bmi} (${profile.bmi_category})</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">🎯 Цель</span>
+                                    <span class="info-value">${goalText}</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">🔥 Норма калорий</span>
+                                    <span class="info-value">${profile.daily_calories || 'Не рассчитана'} ккал/день</span>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        document.getElementById('profileInfo').innerHTML = `
+                            <p>Заполните анкету, чтобы получить персональный план тренировок.</p>
+                            <a href="/profile" style="color: #4a6fa5;">→ Заполнить анкету</a>
+                        `;
+                    }
+                }
+            } catch (err) {
+                console.error('Ошибка загрузки профиля:', err);
+            }
+        }
+
+        async function loadLatestTestLevel() {
+            try {
+                const res = await fetch('/api/tests/get', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const tests = await res.json();
+                    if (tests && tests.level) {
+                        let levelClass = '';
+                        let displayText = '';
+                        if (tests.level.includes('Продвинутый')) {
+                            levelClass = 'level-high';
+                            displayText = '🏆 Продвинутый';
+                        } else if (tests.level.includes('Средний')) {
+                            levelClass = 'level-medium';
+                            displayText = '💪 Средний';
+                        } else {
+                            levelClass = 'level-low';
+                            displayText = '🌱 Начинающий';
+                        }
+                        document.getElementById('fitnessLevel').innerHTML = `<span class="level-badge ${levelClass}">${displayText}</span>`;
+                    } else {
+                        document.getElementById('fitnessLevel').innerHTML = '<span style="color: #aaa;">Не пройден</span>';
+                    }
+                } else {
+                    document.getElementById('fitnessLevel').innerHTML = '<span style="color: #aaa;">Не пройден</span>';
+                }
+            } catch (err) {
+                document.getElementById('fitnessLevel').innerHTML = '<span style="color: #aaa;">Ошибка</span>';
+            }
+        }
+
+        async function loadWeightHistory() {
+            try {
+                const res = await fetch('/api/weight/history', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    return await res.json();
+                }
+            } catch (err) {
+                console.error('Ошибка загрузки веса:', err);
+            }
+            return [];
+        }
+
+        async function loadAllData() {
+            try {
+                const historyRes = await fetch('/api/history/get', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const caloriesRes = await fetch('/api/nutrition/week', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const weightData = await loadWeightHistory();
+
+                let history = [];
+                let caloriesByDate = {};
+
+                if (historyRes.ok) history = await historyRes.json();
+                if (caloriesRes.ok) {
+                    const nutritionData = await caloriesRes.json();
+                    for (const [date, data] of Object.entries(nutritionData)) {
+                        caloriesByDate[date] = data.totals ? data.totals.calories : 0;
+                    }
+                    const today = new Date().toISOString().split('T')[0];
+                    const todayCal = caloriesByDate[today] || 0;
+                    document.getElementById('todayCalories').textContent = todayCal;
+
+                    const remaining = dailyCaloriesNormValue - todayCal;
+                    const labelSpan = document.getElementById('todayCaloriesLabel');
+                    if (dailyCaloriesNormValue > 0) {
+                        let remainingClass = '';
+                        if (remaining >= 0) remainingClass = 'good';
+                        else remainingClass = 'bad';
+                        labelSpan.innerHTML = `Калорий сегодня<br><span class="calories-remaining ${remainingClass}">осталось: ${Math.abs(remaining)}</span>`;
+                    } else {
+                        labelSpan.innerHTML = 'Калорий сегодня';
+                    }
+                }
+
+                // Создаём карту весов по датам
+                const weightByDate = {};
+                for (const item of weightData) {
+                    weightByDate[item.date] = item.weight;
+                }
+
+                const dateMap = new Map();
+
+                for (const item of history) {
+                    const date = item.recorded_at ? item.recorded_at.split('T')[0] : null;
+                    if (date && !dateMap.has(date)) {
+                        dateMap.set(date, {
+                            date: date, weight: null, load: 0,
+                            pullups: 0, pushups: 0, benchpress: 0, plank: 0, walking: 0, calories: 0
+                        });
+                    }
+                    if (date && dateMap.has(date)) {
+                        const entry = dateMap.get(date);
+                        entry.weight = weightByDate[date] || null;
+                        entry.load = calculateLoad(item);
+                        entry.pullups = item.pullups || 0;
+                        entry.pushups = item.pushups || 0;
+                        entry.benchpress = item.benchpress || 0;
+                        entry.plank = item.plank ? item.plank / 10 : 0;
+                        entry.walking = item.walking ? Math.round((item.walking || 0) / 1000) : 0;
+                    }
+                }
+
+                for (const [date, calories] of Object.entries(caloriesByDate)) {
+                    if (!dateMap.has(date)) {
+                        dateMap.set(date, {
+                            date: date, weight: weightByDate[date] || null, load: 0,
+                            pullups: 0, pushups: 0, benchpress: 0, plank: 0, walking: 0, calories: 0
+                        });
+                    }
+                    dateMap.get(date).calories = calories;
+                }
+
+                // Добавляем даты, где есть только вес
+                for (const [date, weight] of Object.entries(weightByDate)) {
+                    if (!dateMap.has(date)) {
+                        dateMap.set(date, {
+                            date: date, weight: weight, load: 0,
+                            pullups: 0, pushups: 0, benchpress: 0, plank: 0, walking: 0, calories: 0
+                        });
+                    }
+                }
+
+                const sortedDates = Array.from(dateMap.keys()).sort();
+                const combinedDataArray = [];
+                for (const date of sortedDates) {
+                    combinedDataArray.push(dateMap.get(date));
+                }
+
+                if (combinedDataArray.length > 0) {
+                    const labels = combinedDataArray.map(item => formatDateTime(item.date));
+                    updateChart(labels, {
+                        weight: combinedDataArray.map(item => item.weight),
+                        load: combinedDataArray.map(item => item.load),
+                        pullups: combinedDataArray.map(item => item.pullups),
+                        pushups: combinedDataArray.map(item => item.pushups),
+                        benchpress: combinedDataArray.map(item => item.benchpress),
+                        plank: combinedDataArray.map(item => item.plank),
+                        walking: combinedDataArray.map(item => item.walking),
+                        calories: combinedDataArray.map(item => item.calories)
+                    });
+                } else {
+                    const ctx = document.getElementById('fullChart').getContext('2d');
+                    if (fullChart) fullChart.destroy();
+                    ctx.canvas.parentElement.innerHTML = '<div class="no-data">📊 Нет данных. Пройдите тест или добавьте питание.</div>';
+                }
+            } catch (err) {
+                console.error('Ошибка загрузки данных:', err);
+            }
+        }
+
+        function updateChart(labels, data) {
+            const ctx = document.getElementById('fullChart').getContext('2d');
+            if (fullChart) fullChart.destroy();
+
+            let datasets = [];
+            const colors = {
+                weight: '#4a6fa5',
+                load: '#f093fb',
+                calories: '#ff9800',
+                pullups: '#5cb85c',
+                pushups: '#5bc0de',
+                benchpress: '#f0ad4e',
+                plank: '#d9534f',
+                walking: '#8a6de9'
+            };
+
+            if (currentMetric === 'all') {
+                datasets = [
+                    getDatasetConfig('⚖️ Вес (кг)', data.weight, colors.weight, 'y', 'line', 1),
+                    getDatasetConfig('💪 Нагрузка', data.load, colors.load, 'y1', 'line', 2),
+                    getDatasetConfig('🍽️ Калории', data.calories, colors.calories, 'y2', 'bar', 3)
+                ];
+            } else if (currentMetric === 'fitness') {
+                datasets = [
+                    getDatasetConfig('⚖️ Вес (кг)', data.weight, colors.weight, 'y', 'line', 1),
+                    getDatasetConfig('💪 Нагрузка', data.load, colors.load, 'y1', 'line', 2)
+                ];
+            } else if (currentMetric === 'nutrition') {
+                datasets = [
+                    getDatasetConfig('🍽️ Калории', data.calories, colors.calories, 'y', 'bar', 1)
+                ];
+            } else if (currentMetric === 'exercises') {
+                datasets = [
+                    getDatasetConfig('🤸 Подтягивания', data.pullups, colors.pullups, 'y', 'line', 1),
+                    getDatasetConfig('📤 Отжимания', data.pushups, colors.pushups, 'y', 'line', 2),
+                    getDatasetConfig('🏋️ Жим штанги', data.benchpress, colors.benchpress, 'y', 'line', 3),
+                    getDatasetConfig('⏱️ Планка (сек/10)', data.plank, colors.plank, 'y', 'line', 4),
+                    getDatasetConfig('🚶 Ходьба (тыс/день)', data.walking, colors.walking, 'y', 'line', 5)
+                ];
+            }
+
+            const scales = {
+                x: {
+                    grid: { color: '#3d3d3d' },
+                    ticks: { color: '#aaa', maxRotation: 45, minRotation: 0, autoSkip: true, maxTicksLimit: 10 },
+                    title: { display: true, text: 'Дата', color: '#aaa', font: { size: 12 } }
+                }
+            };
+
+            if (currentMetric === 'all') {
+                scales.y = {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: { display: true, text: 'Вес (кг)', color: '#aaa', font: { size: 12 } },
+                    grid: { color: '#3d3d3d' },
+                    ticks: { color: '#aaa' },
+                    beginAtZero: false
+                };
+                scales.y1 = {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: { display: true, text: 'Нагрузка (ед.)', color: '#aaa', font: { size: 12 } },
+                    grid: { drawOnChartArea: false },
+                    ticks: { color: '#aaa' },
+                    beginAtZero: true
+                };
+                scales.y2 = {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: { display: true, text: 'Калории (ккал)', color: '#ff9800', font: { size: 12 } },
+                    grid: { drawOnChartArea: false },
+                    ticks: { color: '#ff9800' },
+                    beginAtZero: true
+                };
+            } else if (currentMetric === 'fitness') {
+                scales.y = {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: { display: true, text: 'Вес (кг)', color: '#aaa', font: { size: 12 } },
+                    grid: { color: '#3d3d3d' },
+                    ticks: { color: '#aaa' },
+                    beginAtZero: false
+                };
+                scales.y1 = {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: { display: true, text: 'Нагрузка (ед.)', color: '#aaa', font: { size: 12 } },
+                    grid: { drawOnChartArea: false },
+                    ticks: { color: '#aaa' },
+                    beginAtZero: true
+                };
+            } else if (currentMetric === 'nutrition') {
+                scales.y = {
+                    type: 'linear',
+                    display: true,
+                    title: { display: true, text: 'Калории (ккал)', color: '#ff9800', font: { size: 12 } },
+                    grid: { color: '#3d3d3d' },
+                    ticks: { color: '#ff9800' },
+                    beginAtZero: true
+                };
+            } else if (currentMetric === 'exercises') {
+                scales.y = {
+                    type: 'linear',
+                    display: true,
+                    title: { display: true, text: 'Количество повторений', color: '#aaa', font: { size: 12 } },
+                    grid: { color: '#3d3d3d' },
+                    ticks: { color: '#aaa' },
+                    beginAtZero: true
+                };
+            }
+
+            fullChart = new Chart(ctx, {
+                type: 'line',
+                data: { labels: labels, datasets: datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    interaction: { mode: 'index', intersect: false },
+                    scales: scales,
+                    plugins: {
+                        legend: { labels: { color: '#aaa', font: { size: 11 } }, position: 'top' },
+                        tooltip: {
+                            backgroundColor: '#2d2d2d',
+                            titleColor: 'white',
+                            bodyColor: '#aaa',
+                            titleFont: { size: 14 },
+                            bodyFont: { size: 12 },
+                            mode: 'index',
+                            intersect: false
+                        }
+                    }
+                }
+            });
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('userId');
+            localStorage.removeItem('username');
+            document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
+            window.location.href = '/login';
+        }
+
+        document.querySelectorAll('.chart-toggle-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.chart-toggle-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentMetric = btn.dataset.metric;
+                loadAllData();
+            });
+        });
+
+        loadUserInfo();
+        loadProfile();
+        loadLatestTestLevel();
+        loadAllData();
+    </script>
+</body>
+</html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parkinson's Diagnostic System</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        /* Дополнительные стили для главной страницы */
+        .hero {
+            text-align: center;
+            padding: 4rem 1rem;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #fff 0%, #a8b2ff 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: #aaa;
+            margin-bottom: 2rem;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: #2d2d2d;
+            border-radius: 24px;
+            padding: 2rem;
+            text-align: center;
+            border: 1px solid #3d3d3d;
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: #667eea;
+        }
+
+        .feature-card .icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+
+        .feature-card p {
+            color: #888;
+            line-height: 1.5;
+        }
+
+        /* Проверка авторизации */
+        .loading-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #1e1e1e;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid #3d3d3d;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="loading-screen" id="loading">
+            <div class="spinner"></div>
+        </div>
+
+        <div id="content" style="display: none;">
+            <div class="container">
+                <div class="hero">
+                    <h1>🧠 Parkinson's Diagnostic System</h1>
+                    <p>Ранняя диагностика болезни Паркинсона<br>по анализу голоса и почерка</p>
+
+                    <div class="auth-buttons">
+                        <a href="/login" class="btn btn-primary">🔐 Вход</a>
+                        <a href="/register" class="btn btn-secondary">📝 Регистрация</a>
+                    </div>
+                </div>
+
+                <div class="features">
+                    <div class="feature-card">
+                        <div class="icon">🎙️</div>
+                        <h3>Анализ голоса</h3>
+                        <p>Jitter, Shimmer, HNR — выявление гипофонии и тремора голоса</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon">✍️</div>
+                        <h3>Анализ почерка</h3>
+                        <p>Микрография, тремор, прогрессирующее уменьшение букв</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon">📊</div>
+                        <h3>Динамика</h3>
+                        <p>Отслеживание состояния во времени с графиками</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Проверка авторизации
+        const token = localStorage.getItem('token');
+
+        if (token) {
+            // Если пользователь уже авторизован - редирект на дашборд
+            window.location.href = '/dashboard';
+        } else {
+            // Показываем контент
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
